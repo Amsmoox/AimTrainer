@@ -4,21 +4,21 @@ import time
 import math
 
 pygame.init()
-
+# Set the dimensions of the screen
 SCREEN_WIDTH, SCREEN_HEIGHT = 900, 700
 DISPLAY_WINDOW = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Enhanced Aim Trainer")
-
+# Game event and timing settings
 SPAWN_RATE = 500
 SPAWN_EVENT = pygame.USEREVENT + 1
-
+# Margin for spawning targets and design settings
 MARGIN = 40
 BACKGROUND_COLOR = (3, 22, 52)  # Darker shade for better contrast
 PRIMARY_COLOR = (60, 180, 245)  # Bright blue for primary circles
 SECONDARY_COLOR = (245, 165, 34)  # Bright orange for contrast
-
+# Font settings for displaying texts
 FONT_STYLE = pygame.font.SysFont("consolas", 30)  # Modern font and slightly larger size
-
+# Game life settings
 HEALTH_POINTS = 5
 INFO_BAR_HEIGHT = 60
 
@@ -30,12 +30,14 @@ class MovingTarget:
     SECONDARY_COLOR = "yellow"
 
     def __init__(self, x, y):
+        """ Initialize the moving target at a given position """
         self.x = x
         self.y = y
         self.radius = 0
         self.expanding = True
 
     def animate(self):
+        """ Update the target's size dynamically """
         if self.radius + self.EXPANSION_RATE > self.MAX_RADIUS:
             self.expanding = False
 
@@ -45,42 +47,50 @@ class MovingTarget:
             self.radius -= self.EXPANSION_RATE
 
     def render(self, win):
-        pygame.draw.circle(win, self.PRIMARY_COLOR, (self.x, self.y), self.radius)
-        pygame.draw.circle(win, self.SECONDARY_COLOR, (self.x, self.y), self.radius * 0.75)
-        pygame.draw.circle(win, self.PRIMARY_COLOR, (self.x, self.y), self.radius * 0.5)
-        pygame.draw.circle(win, self.SECONDARY_COLOR, (self.x, self.y), self.radius * 0.25)
+        """ Render the target with alternating colors """
+        pygame.draw.circle(win, self.SECONDARY_COLOR, (self.x, self.y), self.radius)
+        if self.radius > 5:
+            pygame.draw.circle(win, PRIMARY_COLOR, (self.x, self.y), self.radius * 0.75)
+        if self.radius > 10:
+            pygame.draw.circle(win, SECONDARY_COLOR, (self.x, self.y), self.radius * 0.5)
+        if self.radius > 15:
+            pygame.draw.circle(win, PRIMARY_COLOR, (self.x, self.y), self.radius * 0.25)
+
 
     def hit_test(self, x, y):
+        """ Check if a given point (click) is within the target's area """
         distance = math.sqrt((x - self.x) ** 2 + (y - self.y) ** 2)
         return distance <= self.radius
 
 
 def render_scene(win, targets):
+    """ Fill the screen and draw all targets """
     win.fill(BACKGROUND_COLOR)
     for target in targets:
         target.render(win)
 
 
 def display_info(win, elapsed, hits, misses):
-    pygame.draw.rect(win, "darkgrey", (0, 0, SCREEN_WIDTH, INFO_BAR_HEIGHT))
-    time_elapsed = FONT_STYLE.render(f"Elapsed Time: {elapsed:.2f}s", True, "black")
-    hit_count = FONT_STYLE.render(f"Score: {hits}", True, "black")
-    miss_count = FONT_STYLE.render(f"Misses: {misses}", True, "black")
+    """ Display game information on the screen """
+    pygame.draw.rect(win, (45, 45, 45), (0, 0, SCREEN_WIDTH, INFO_BAR_HEIGHT))  # Darker bar for better readability
+    time_elapsed = FONT_STYLE.render(f"Elapsed Time: {elapsed:.2f}s", True, "white")
+    hit_count = FONT_STYLE.render(f"Score: {hits}", True, "white")
+    miss_count = FONT_STYLE.render(f"Misses: {misses}", True, "white")
 
-    win.blit(time_elapsed, (10, 10))
-    win.blit(hit_count, (300, 10))
-    win.blit(miss_count, (550, 10))
-
+    win.blit(time_elapsed, (20, 15))
+    win.blit(hit_count, (320, 15))
+    win.blit(miss_count, (620, 15))
 
 def final_screen(win, duration, hits, total_clicks):
+    """ Display the final screen with game stats """
     win.fill(BACKGROUND_COLOR)
-    elapsed_label = FONT_STYLE.render(f"Total Time: {duration:.2f}s", True, "white")
-    hit_label = FONT_STYLE.render(f"Total Hits: {hits}", True, "white")
+    elapsed_label = FONT_STYLE.render(f"Total Time: {duration:.2f}s", True, PRIMARY_COLOR)
+    hit_label = FONT_STYLE.render(f"Total Hits: {hits}", True, PRIMARY_COLOR)
     accuracy = (hits / total_clicks * 100) if total_clicks > 0 else 0
-    accuracy_label = FONT_STYLE.render(f"Accuracy: {accuracy:.1f}%", True, "white")
+    accuracy_label = FONT_STYLE.render(f"Accuracy: {accuracy:.1f}%", True, SECONDARY_COLOR)
 
-    win.blit(elapsed_label, (350, 200))
-    win.blit(hit_label, (350, 250))
+    win.blit(elapsed_label, (350, 150))
+    win.blit(hit_label, (350, 225))
     win.blit(accuracy_label, (350, 300))
 
     pygame.display.update()
@@ -93,6 +103,7 @@ def final_screen(win, duration, hits, total_clicks):
 
 
 def gameplay():
+    """ Main game loop """
     running = True
     target_list = []
     clock = pygame.time.Clock()
@@ -146,3 +157,6 @@ def gameplay():
 
 if __name__ == "__main__":
     gameplay()
+
+
+# Copyright 2024 Mharrech Ayoub
